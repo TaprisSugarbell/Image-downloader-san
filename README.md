@@ -1,9 +1,15 @@
 # Image-downloader-san
 
+## Instalation
+> pip install image-downloader-san
+
+or
+
+> pip install git+https://github.com/TaprisSugarbell/Image-downloader-san.git
 ## Dependencies
 - ### Python >= 3.8
 - ### [requests](http://docs.python-requests.org/en/latest/)
-
+- ### [beautifulsoup4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)
 ## Example of use
 
 ### Site Recognize
