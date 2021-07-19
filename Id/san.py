@@ -1,4 +1,7 @@
+import re
+import os
 import json
+import feedparser
 import requests
 import html_to_json
 from bs4 import BeautifulSoup
@@ -18,6 +21,7 @@ class Bruteforce:
                     "pinterest": "pinterest.com",
                     "yandere": "yande.re",
                     "rule34": "rule34.xxx",
+                    "reddit": "www.reddit.com",
                     "direct_link": ["s.sankakucomplex.com",
                                     "i.pinimg.com",
                                     "64.media.tumblr.com",
@@ -25,7 +29,8 @@ class Bruteforce:
                                     "files.yande.re",
                                     "images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com",
                                     "img3.gelbooru.com",
-                                    "wimg.rule34.xxx"]}
+                                    "wimg.rule34.xxx",
+                                    "i.redd.it"]}
         download = {"danbooru": self.danbooru,
                     "safebooru": self.safebooru,
                     "sankaku": self.sankaku,
@@ -38,6 +43,7 @@ class Bruteforce:
                     "pinterest": self.pinterest,
                     "yandere": self.yandere,
                     "rule34": self.rule34,
+                    "reddit": self.reddit,
                     "direct_link": self.dir_link}
         exts = ["jpg", "png", "jpeg", "webp", "gif"]
         header = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:77.0) Gecko/20190101 Firefox/77.0'}
@@ -48,7 +54,6 @@ class Bruteforce:
         self.username = username
         self.download = download
         self.donmains = donmains
-
 
     def gelbooru(self, url):
         r = requests.get(url)
@@ -76,7 +81,7 @@ class Bruteforce:
     def devianart(self, url):
         r = requests.get(url)
         soup = BeautifulSoup(r.content, "html.parser")
-        img = [i.get('src') for i in soup.find_all(attrs={"class": "_1izoQ"}) if i != None]
+        img = [i.get('src') for i in soup.find_all(attrs={"class": "_1izoQ"}) if i is not None]
         return img[0]
 
     def zerochan(self, url):
@@ -108,7 +113,7 @@ class Bruteforce:
     def pinterest(self, url):
         r = requests.get(url).text
         img = r.split("image")
-        print(img[0].split('"')[-3])
+        return img[0].split('"')[-3]
 
     def yandere(self, url):
         r = requests.get(url)
@@ -188,6 +193,33 @@ class Bruteforce:
             post = infodic["file_url"]
         return post
 
+    def booru(self, url="", site=""):
+        soup = BeautifulSoup(requests.get(url).content, "html.parser")
+        if site == "yandere" or site == "lolibooru":
+            try:
+                link = soup.find("a", attrs={"id": "png"}).get("href")
+            except:
+                link = soup.find("a", attrs={"id": "highres"}).get("href")
+        elif site == "xbooru" or site == "realbooru" or site == "gelbooru":
+            try:
+                link = soup.find("a", text="Original").get("href")
+            except:
+                link = soup.find("a", text="Original image").get("href")
+        elif site == "rule34":
+            try:
+                link = soup.find("a")
+            except:
+                stats = soup.find(attrs={"class": "link-list"})
+                ahrf = [a.a.get("href") for a in stats.find_all("li")]
+                for h in ahrf:
+                    try:
+                        ahrf.remove("#")
+                    except:
+                        break
+                link = ahrf[0]
+        print(link)
+        return link
+
     def rule34(self, url):
         soup = BeautifulSoup(requests.get(url).content, "html.parser")
         stats = soup.find(attrs={"class": "link-list"})
@@ -198,6 +230,29 @@ class Bruteforce:
             except:
                 break
         return ahrf[0]
+
+    def reddit(self, url):
+        href = re.compile(r"https://i")
+        lnks = url.split("/")
+        post_id = lnks[6]
+        r = requests.get(url, headers=self.header)
+        # d = feedparser.parse(r.content)
+        # soup = BeautifulSoup(d.get("entries")[0]["content"][0]["value"], "html.parser")
+        # link = soup.find_all("a", attrs={"href": href})
+        # for a in d.get("entries"):
+        #     try:
+        #         soup = BeautifulSoup(a["content"][0]["value"], "html.parser")
+        #         link = soup.find("a", attrs={"href": href}).get("href")
+        #         print(soup.find("a", attrs={"href": href}).get("href"))
+        #     except AttributeError:
+        #         print("No se encontro enlace")
+        # print(a)
+        soup = BeautifulSoup(r.content, "html.parser")
+
+        a = soup.find_all("script", attrs={"id": "data"})
+        json_ = json.loads(str(a[0])[32:-10])
+        link = json_["posts"]["models"]["t3_" + post_id]["media"]["content"]
+        return link
 
     def site_recognize(self, url=""):
         key = ""
@@ -229,7 +284,9 @@ class Bruteforce:
         image = url
         return image
 
-    def download_image(self, url="", out="", force=False):
+    def download_image(self, url="", out="", folder="./", force=False):
+        if not os.path.exists(folder):
+            os.mkdir(folder)
         if len(self.url) > 0:
             url = self.url
         else:
@@ -261,7 +318,7 @@ class Bruteforce:
 
         if len(out) > 0:
             image = f"{out}.{ext}"
-        elif force_jpg == True:
+        elif force_jpg:
             image = f"{us}.{ext}"
         else:
             image = us
@@ -269,3 +326,8 @@ class Bruteforce:
             img.write(requests.get(valor, headers=self.header).content)
         return image
 
+# b = Bruteforce()
+# r = b.reddit("https://www.reddit.com/r/pantsu/comments/n8dk1m/smoking_fox_girl_original/?utm_source=share&utm_medium=web2x&context=3")
+# r = b.reddit("https://www.reddit.com/r/thighdeology/comments/n8dlsa/smoking_hot_fox_thighs/.rss")
+# r = b.reddit("https://www.reddit.com/user/-sugarbell-/m/nsfw_dc/new/.rss")
+# b.download_image(r, "shironeko-2")
