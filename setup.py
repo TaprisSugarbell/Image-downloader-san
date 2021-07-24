@@ -4,7 +4,7 @@ with open("./README.md", "r") as file:
     long_description = file.read()
 
 setup(name="image-downloader-san",
-      version="0.0.5",
+      version="0.0.6",
       description="An image downloader",
       long_description=long_description,
       long_description_content_type="text/markdown",
@@ -13,7 +13,7 @@ setup(name="image-downloader-san",
       author_email="anonesayu@gmail.com",
       license="MIT",
       packages=["Id"],
-      install_requires=["requests", "beautifulsoup4"],
+      install_requires=["requests", "beautifulsoup4", "html-to-json"],
       classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

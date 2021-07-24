@@ -1,7 +1,6 @@
 import re
 import os
 import json
-import feedparser
 import requests
 import html_to_json
 from bs4 import BeautifulSoup
