@@ -292,7 +292,8 @@ class Bruteforce:
             try:
                 os.mkdir(folder)
             except FileNotFoundError:
-                os.makedirs(folder, exist_ok=True)
+                os.makedirs(folder)
+                # os.makedirs(folder, exist_ok=True)
         if len(self.url) > 0:
             url = self.url
         else:

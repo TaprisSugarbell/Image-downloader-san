@@ -4,7 +4,7 @@ with open("./README.md", "r") as file:
     long_description = file.read()
 
 setup(name="image-downloader-san",
-      version="0.0.8",
+      version="0.1.0",
       description="An image downloader",
       long_description=long_description,
       long_description_content_type="text/markdown",
