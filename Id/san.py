@@ -284,6 +284,10 @@ class Bruteforce:
         return image
 
     def download_image(self, url="", out="", folder="./", force=False):
+        if isinstance(folder, int):
+            folder = str(folder)
+        if isinstance(out, int):
+            out = str(out)
         if not os.path.exists(folder):
             os.mkdir(folder)
         if len(self.url) > 0:
