@@ -289,7 +289,10 @@ class Bruteforce:
         if isinstance(out, int):
             out = str(out)
         if not os.path.exists(folder):
-            os.mkdir(folder)
+            try:
+                os.mkdir(folder)
+            except FileNotFoundError:
+                os.makedirs(folder, exist_ok=True)
         if len(self.url) > 0:
             url = self.url
         else:
